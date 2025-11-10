@@ -14,7 +14,7 @@ services:
       - idp-net
 
   shib-idp:
-    image: docker.gitlab.daasi.de/shibidp-kubernetes/shibidpv5-baseimage:latest
+    image: uniconlabs/shibboleth-idp:5.2.0
     ports:
       - "8443:8443"  # HTTPS
     environment:
