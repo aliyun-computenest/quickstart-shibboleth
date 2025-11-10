@@ -1,3 +1,4 @@
+# docker-compose.yml
 version: "3.8"
 
 services:
@@ -6,30 +7,19 @@ services:
     environment:
       MARIADB_DATABASE: shibboleth
       MARIADB_USER: shibboleth
-      MARIADB_PASSWORD: ${DB_PASSWORD}
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_PASSWORD: dbpassword123
+      MARIADB_ROOT_PASSWORD: rootpassword123
     volumes:
       - db_data:/var/lib/mysql
     networks:
       - idp-net
 
   shib-idp:
-    image: uniconlabs/shibboleth-idp:5.2.0
+    image: shibboleth-idp:5.2  # 使用本地构建的镜像
     ports:
-      - "8443:8443"  # HTTPS
+      - "8443:8443"
     environment:
-      STAGE: DOCKER_PROD
-      IDP_ENTITY_ID: "https://${IDP_HOSTNAME}/idp/shibboleth"
-      IDP_HOSTNAME: ${IDP_HOSTNAME}
-      IDP_SCOPE: ${IDP_SCOPE}
-      IDP_DB_TYPE: mariadb
-      IDP_DB_HOST: mariadb
-      IDP_DB_PORT: 3306
-      IDP_DB_NAME: shibboleth
-      IDP_DB_USER: shibboleth
-      IDP_DB_PASSWORD: ${DB_PASSWORD}
-      # 启用 consent
-      IDP_CONSENT_STORAGE_SERVICE: shibboleth.JPAStorageService
+      IDP_HOSTNAME: idp.example.com  # ← 替换为你的域名
     volumes:
       - idp_data:/opt/shibboleth-idp
     depends_on:
@@ -37,25 +27,9 @@ services:
     networks:
       - idp-net
 
-  caddy:
-    image: caddy:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - shib-idp
-    networks:
-      - idp-net
-
 volumes:
   db_data:
   idp_data:
-  caddy_data:
-  caddy_config:
 
 networks:
   idp-net:
