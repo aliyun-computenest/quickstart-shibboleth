@@ -1,0 +1,3 @@
+idp.yourcompany.com {
+  reverse_proxy shib-idp:8443
+}
